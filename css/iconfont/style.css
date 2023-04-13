@@ -1,0 +1,63 @@
+@font-face {
+  font-family: 'icons';
+  src:  url('fonts/icons.eot?scbrv5');
+  src:  url('fonts/icons.eot?scbrv5#iefix') format('embedded-opentype'),
+    url('fonts/icons.ttf?scbrv5') format('truetype'),
+    url('fonts/icons.woff?scbrv5') format('woff'),
+    url('fonts/icons.svg?scbrv5#icons') format('svg');
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
+
+i {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'icons' !important;
+  speak: never;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon_arrow:before {
+  content: "\e900";
+}
+.icon_bathroom:before {
+  content: "\e901";
+}
+.icon_bedroom:before {
+  content: "\e902";
+}
+.icon_humidity:before {
+  content: "\e903";
+}
+.icon_kitchen:before {
+  content: "\e904";
+}
+.icon_lights:before {
+  content: "\e905";
+}
+.icon_livingroom:before {
+  content: "\e906";
+}
+.icon_power:before {
+  content: "\e907";
+}
+.icon_studio:before {
+  content: "\e908";
+}
+.icon_sun:before {
+  content: "\e909";
+}
+.icon_temperature:before {
+  content: "\e90a";
+}
+.icon_washingroom:before {
+  content: "\e90b";
+}
