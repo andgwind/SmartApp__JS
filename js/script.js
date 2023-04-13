@@ -140,12 +140,39 @@ function renderScreeen(isRooms) {
 
 const typeScreens = {
     settingsTypes: document.querySelector(".settings__types"),
+    settingsScreens: document.querySelector(".settings__screens"),
 };
 
+function getSettingsActive(newActiveType) {
 
-function updateSettingsType(elementTarget, newActiveType) {
+    if (isNewActiveType(newActiveType)) {
+       
+        const nameType = newActiveType.dataset.setting;
+        const newTypeScreen = typeScreens.settingsScreens.querySelector(`[data-setting=${nameType}]`);
+        return newTypeScreen;
+    } else {
 
-    if (elementTarget.classList.contains("settings__type_active") == false && newActiveType != undefined) {
+        return newActiveType;
+    };
+   
+};
+
+// SettingsScreen - set active || unactive
+function updateSettingsScreen(newTypeScreen) {
+    
+
+    if ( isNewActiveType(newTypeScreen) && ((newTypeScreen.classList.contains("settings__screen_active")) == false)) {
+
+        const oldActiveScreen = typeScreens.settingsScreens.querySelector(".settings__screen_active");
+
+        oldActiveScreen.classList.remove("settings__screen_active");
+        newTypeScreen.classList.add("settings__screen_active");
+    };
+};
+
+function updateSettingsType(newActiveType) {
+
+    if ( isNewActiveType(newActiveType) && ((newActiveType.classList.contains("settings__type_active")) == false)) {
 
         const oldActiveType = typeScreens.settingsTypes.querySelector(".settings__type_active");
 
@@ -155,6 +182,11 @@ function updateSettingsType(elementTarget, newActiveType) {
 
 };
 
+function isNewActiveType(newActiveType) {
+    
+    const result = (newActiveType != undefined) ? true : false;
+    return result;
+}
 
 function getSettingType(elementTarget) {
 
@@ -173,13 +205,20 @@ function getSettingType(elementTarget) {
     return newActiveType;
 };
 
-// SettingsType - active || unActive
+
+// SettingsType and Screen - active || unActive
 typeScreens.settingsTypes.addEventListener("click", function(event) {
 
     const elementTarget = event.target;
-    updateSettingsType(elementTarget, getSettingType(elementTarget));
+    const newActiveType = getSettingType(elementTarget);
+    updateSettingsType(newActiveType);
+
+    setTimeout(() => {
+        updateSettingsScreen(getSettingsActive(newActiveType));
+    }, 300);
 
 });
+
 
 // Temperature
 const temperatureScreen = {
