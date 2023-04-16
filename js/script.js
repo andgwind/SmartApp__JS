@@ -61,6 +61,8 @@ function setRoomsItemActive(nameRoom) {
         newRoomsItemActive.classList.add('rooms__item_active');
         setActualTemperatureOnScreen(activeRoom);
         updateSettingsButtonPower(activeRoom);
+        setActualSLidersOnScreen(activeRoom, activeType);
+        
     } 
 }
 
@@ -143,11 +145,19 @@ const typeScreens = {
     settingsScreens: document.querySelector(".settings__screens"),
 };
 
+let activeType = "lights";
+
 function getSettingsActive(newActiveType) {
 
     if (isNewActiveType(newActiveType)) {
        
         const nameType = newActiveType.dataset.setting;
+        
+        if (nameType == "lights" || nameType == "humidity") {
+            activeType = nameType;
+            setActualSLidersOnScreen(activeRoom, activeType);
+        }
+
         const newTypeScreen = typeScreens.settingsScreens.querySelector(`[data-setting=${nameType}]`);
         return newTypeScreen;
     } else {
@@ -172,6 +182,7 @@ function updateSettingsScreen(newTypeScreen) {
 
 function updateSettingsType(newActiveType) {
 
+   
     if ( isNewActiveType(newActiveType) && ((newActiveType.classList.contains("settings__type_active")) == false)) {
 
         const oldActiveType = typeScreens.settingsTypes.querySelector(".settings__type_active");
@@ -251,36 +262,48 @@ const settingsRoomsData = {
         temperatureButtonSet: false,
         lights: 0,
         humidity: 0,
+        lightsSwitch: false,
+        humiditySwitch: false,
     },
     bedroom: {
         temperature: 15,
         temperatureButtonSet: false,
         lights: 0,
         humidity: 0,
+        lightsSwitch: false,
+        humiditySwitch: false,
     },
     kitchen: {
         temperature: 15,
         temperatureButtonSet: false,
         lights: 0,
         humidity: 0,
+        lightsSwitch: false,
+        humiditySwitch: false,
     },
     bathroom: {
         temperature: 15,
         temperatureButtonSet: false,
         lights: 0,
         humidity: 0,
+        lightsSwitch: false,
+        humiditySwitch: false,
     },
     studio: {
         temperature: 15,
         temperatureButtonSet: false,
         lights: 0,
         humidity: 0,
+        lightsSwitch: false,
+        humiditySwitch: false,
     },
     washing: {
         temperature: 15,
         temperatureButtonSet: false,
         lights: 0,
         humidity: 0,
+        lightsSwitch: false,
+        humiditySwitch: false,
     },
 }
 
@@ -430,6 +453,161 @@ temperatureScreen.settingsButtonSet.addEventListener("click", () => {
         setStatusLabel();
     };
 });
+
+
+const lightsScreen = {
+    lightsScreenSlider: document.querySelector(".screen__slider"),
+    lightsSliderProgress: document.querySelector(".screen__slider-progress"),
+    lightsSwitch: document.querySelectorAll(".screen__switch")[0],
+    lightsSwitchCircle: document.querySelectorAll(".screen__switch-circle")[0],
+};
+
+const humidityScreen = {
+    humditySlider: document.querySelector('[data-slider="humidity"]'),
+    humiditySwitch: document.querySelectorAll(".screen__switch")[1],
+    humiditySwitchCircle: document.querySelectorAll(".screen__switch-circle")[1],
+};
+
+function updateSliderInfo(screenSliderProgress, value) {
+
+    const minValue = 0;
+    const maxValue  = 100;
+    
+    if (value >= minValue && value <= maxValue) {
+        
+        setSliderValue(screenSliderProgress, value);
+    }
+};
+
+function saveSlidersValue(screenSlider, screenSliderProgress) {
+    
+    const nameType = screenSlider.dataset.slider;
+    settingsRoomsData[activeRoom][nameType] = +screenSliderProgress.innerText.slice(0, -1);
+    
+};
+
+function setActualSLidersOnScreen(activeRoom, activeType) {
+    
+    let value = settingsRoomsData[activeRoom][activeType];
+    const actualSlider = document.querySelector(`[data-slider=${activeType}]`);
+    const actualSliderProgress = actualSlider.querySelector(".screen__slider-progress");
+    setSliderValue(actualSliderProgress, value);
+    setActualSwitch(activeRoom, activeType);
+};
+
+function setSliderValue(screenSliderProgress, value) {
+
+    screenSliderProgress.style.height = `${value}%`;
+    screenSliderProgress.innerText = `${value}%`;
+}
+
+
+// settings_scrool_temperature - change on touch
+function getChangeSlider(screenSlider) {
+    
+    let flagMouseover = false;
+    let flagMousedown = false;
+    let startPosition = 0;
+    let rangeCoordinat = 0;
+    let change = 0;
+    let screenSliderProgress = screenSlider.querySelector(".screen__slider-progress");
+
+    screenSlider.onmouseover = () => {
+        flagMouseover = true;
+        flagMousedown = false;
+    };
+
+    screenSlider.onmouseout = () => flagMouseover = false;
+    screenSlider.onmouseup = () => {
+        flagMousedown = false;
+        saveSlidersValue(screenSlider, screenSliderProgress);
+    }
+
+    screenSlider.addEventListener("mousedown", (event) => {
+        
+        flagMousedown = true;
+        startPosition = event.offsetY;
+        rangeCoordinat = 0;
+    });
+
+    screenSlider.addEventListener("mousemove", (event) => {
+        
+        if (flagMouseover && flagMousedown) {
+            
+            rangeCoordinat = event.offsetY - startPosition;
+            const newChange = Math.round(rangeCoordinat / -3);
+
+            if (newChange != change) {
+                let value = +screenSliderProgress.innerText.slice(0, -1);
+                
+                if (newChange < change) {
+                    value -= 1;
+                }
+    
+                if (newChange > change) {
+                    value += 1;
+                }
+                change = newChange;
+                updateSliderInfo(screenSliderProgress, value);
+            }    
+        }
+    })
+};
+
+getChangeSlider(lightsScreen.lightsScreenSlider);
+getChangeSlider(humidityScreen.humditySlider);
+
+
+// Screen Switch
+lightsScreen.lightsSwitch.addEventListener("click", function(event) {
+
+    const isSwitch = !settingsRoomsData[activeRoom].lightsSwitch;
+    lightsScreen.lightsSwitchCircle.classList.toggle("screen__switch-circle_active");
+    updateSwitchInfo(activeRoom, activeType, isSwitch);
+});
+
+humidityScreen.humiditySwitch.addEventListener("click", function(event) {
+
+    const isSwitch = !settingsRoomsData[activeRoom].humiditySwitch;
+    humidityScreen.humiditySwitchCircle.classList.toggle("screen__switch-circle_active");
+    updateSwitchInfo(activeRoom, activeType, isSwitch);
+});
+
+function updateSwitchInfo(activeRoom, activeType, isSwitch) {
+
+    if (activeType == "lights") {
+
+        settingsRoomsData[activeRoom].lightsSwitch = isSwitch;
+    } else if ( activeType == "humidity") {
+
+        settingsRoomsData[activeRoom].humiditySwitch = isSwitch;
+    }
+};
+
+function setActualSwitch(activeRoom, activeType) {
+    
+    if (activeType == "lights") {
+
+        const isSwitch = settingsRoomsData[activeRoom].lightsSwitch;
+        updateSwitchOnScreen(isSwitch, lightsScreen.lightsSwitchCircle);
+    } else if ( activeType == "humidity") {
+
+        const isSwitch = settingsRoomsData[activeRoom].humiditySwitch;
+        updateSwitchOnScreen(isSwitch, humidityScreen.humiditySwitchCircle);
+    }
+}
+
+function updateSwitchOnScreen(isSwitch, actualSwitch) {
+
+    if (isSwitch) {
+        actualSwitch.classList.add("screen__switch-circle_active");
+    } else {
+        actualSwitch.classList.remove("screen__switch-circle_active");
+    };
+}
+
+
+
 
 
 
